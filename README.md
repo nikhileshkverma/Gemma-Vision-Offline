@@ -19,7 +19,7 @@ This repository provides:
 | Component      | Minimum Requirement                    |
 | -------------- | -------------------------------------- |
 | CPU            | Quad-core ARM or x86 |
-| RAM            | 8 GB (16 GB recommended)               |
+| RAM            | 32 GB (32 GB recommended)               |
 | Disk Space     | 8–10 GB (for model and cache)          |
 | GPU (optional) | NVIDIA with 8 GB VRAM (if using CUDA)  |
 | OS             | Ubuntu 20.04+ (Tested on 22.04)
