@@ -1,3 +1,10 @@
+Here is your **enhanced version of the `README.md`**, including **all additional required setup steps** such as **offloading support**, **model pre-download**, **offline mode**, and **folders** like `./offload`.
+
+---
+
+# ✅ Updated `README.md` with All Additional Requirements
+
+```markdown
 # Gemma-Vision-Offline
 
 A simple CLI tool to **describe images offline** using the **Gemma 3n multimodal model**. Runs fully offline using a locally downloaded model — no internet required.
@@ -11,6 +18,7 @@ This repository provides:
 * A script to run Gemma 3n in **Vision Mode**
 * Works **offline** on **CPU or GPU**
 * Uses HuggingFace `transformers` for inference
+* Supports **model offloading to disk** via `accelerate`
 
 ---
 
@@ -18,66 +26,88 @@ This repository provides:
 
 | Component      | Minimum Requirement                    |
 | -------------- | -------------------------------------- |
-| CPU            | Quad-core ARM or x86 |
-| RAM            | 32 GB (32 GB recommended)               |
-| Disk Space     | 8–10 GB (for model and cache)          |
+| CPU            | Quad-core ARM or x86                   |
+| RAM            | 32 GB (recommended)                    |
+| Disk Space     | 10–15 GB (for model, cache, offload)   |
 | GPU (optional) | NVIDIA with 8 GB VRAM (if using CUDA)  |
-| OS             | Ubuntu 20.04+ (Tested on 22.04)
+| OS             | Ubuntu 20.04+ (Tested on 22.04)        |
 | Python Version | Python 3.9 or later                    |
 | Virtual Env    | Recommended (`venv` or `conda`)        |
-
-> Note: GPU is optional. The model runs on CPU, though more slowly.
 
 ---
 
 ## 📦 Repository Structure
 
 ```
+
 Gemma-Vision-Offline/
-├── gemma_local_model/       ← Your pre-downloaded model files
-├── describe_image.py       ← Main CLI script
-├── requirements.txt        ← Required Python libraries
-└── README.md               ← This file
-```
+├── gemma\_local\_model/       ← Pre-downloaded model files
+├── describe\_image.py        ← Main CLI script
+├── requirements.txt         ← Required Python libraries
+├── offload/                 ← Disk offload folder (created manually)
+└── README.md                ← This file
+
+````
 
 ---
 
 ## ⚙️ Setup & Installation
 
-1. **Clone the repository**
+### 1. **Clone the repository**
 
-   ```bash
-   git clone https://github.com/yourusername/gemma-vision-offline.git
-   cd gemma-vision-offline
-   ```
+```bash
+git clone https://github.com/yourusername/gemma-vision-offline.git
+cd gemma-vision-offline
+````
 
-2. **Prepare a Python virtual environment**
+### 2. **Prepare a Python virtual environment**
 
-   ```bash
-   python3 -m venv venv
-   source venv/bin/activate
-   ```
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
 
-3. **Install dependencies**
+### 3. **Install dependencies**
 
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-4. **Ensure model files are in place**
-
-   Download `google/gemma-3b-it` locally (one-time step):
-
-   ```python
-   from transformers import AutoProcessor, AutoModelForCausalLM
-   processor = AutoProcessor.from_pretrained("google/gemma-3b-it")
-   model = AutoModelForCausalLM.from_pretrained("google/gemma-3b-it")
-   processor.save_pretrained("./gemma_local_model")
-   model.save_pretrained("./gemma_local_model")
-   ```
+```bash
+pip install -r requirements.txt
+```
 
 ---
 
+### 4. **Download and save the model locally (one-time)**
+
+This step ensures offline mode will work.
+
+```python
+from transformers import AutoProcessor, AutoModelForCausalLM
+
+processor = AutoProcessor.from_pretrained("google/gemma-3b-it")
+model = AutoModelForCausalLM.from_pretrained("google/gemma-3b-it")
+
+processor.save_pretrained("./gemma_local_model")
+model.save_pretrained("./gemma_local_model")
+```
+
+Or from terminal:
+
+```bash
+python download_model.py
+```
+
+*(You can create a `download_model.py` script if needed)*
+
+---
+
+### 5. **Create an offload folder**
+
+This is required for memory-efficient execution with `accelerate`.
+
+```bash
+mkdir -p offload
+```
+
+---
 
 ## 🚀 How to Use
 
@@ -108,7 +138,9 @@ processor = AutoProcessor.from_pretrained("./gemma_local_model")
 model = AutoModelForCausalLM.from_pretrained(
     "./gemma_local_model",
     torch_dtype=torch.float16 if torch.cuda.is_available() else torch.float32,
-    device_map="auto"
+    device_map="auto",
+    offload_folder="./offload",              # enable offload
+    offload_state_dict=True                  # move model weights to disk if needed
 )
 
 def main():
@@ -144,10 +176,9 @@ accelerate                # device placement / offloading
 Pillow                    # image loading and handling
 numpy                     # array and tensor operations
 timm                      # image model components (vision tower support)
-
 ```
 
-Install via:
+Install all dependencies:
 
 ```bash
 pip install -r requirements.txt
@@ -155,11 +186,13 @@ pip install -r requirements.txt
 
 ---
 
-## ✅ Offline Mode
+## 📴 Offline Mode
 
 ```bash
 HF_HUB_OFFLINE=1 python describe_image.py
 ```
+
+> Ensure `gemma_local_model/` and `offload/` are present and populated.
 
 ---
 
@@ -173,3 +206,5 @@ HF_HUB_OFFLINE=1 python describe_image.py
 ## 📌 License
 
 This project is released under the MIT License.
+
+```
