@@ -138,9 +138,13 @@ if __name__ == "__main__":
 ## ✅ Requirements (`requirements.txt`)
 
 ```
-torch>=2.1.0
-transformers>=4.53.0
-Pillow>=9.0.0
+transformers==4.53.0      # core model + processor support
+torch                     # tensor and model inference
+accelerate                # device placement / offloading
+Pillow                    # image loading and handling
+numpy                     # array and tensor operations
+timm                      # image model components (vision tower support)
+
 ```
 
 Install via:
